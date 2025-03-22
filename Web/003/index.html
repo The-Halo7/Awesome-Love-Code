@@ -62,8 +62,55 @@
 
     </div>
 
-    <audio preload="auto" autoplay="" id="media" src="loveNew.mp3" autoplay preload loop="loop"></audio>
+    <!-- 新代码 -->
+<audio id="media" controls style="display:none;">
+    <source src="loveNew.mp3" type="audio/mpeg">
+    <source src="loveNew.ogg" type="audio/ogg">
+    您的浏览器不支持音频播放
+</audio>
+<script>
+        // 新增音频控制逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('media');
+            let audioPlayed = false;
 
+            // 用户交互后允许播放
+            function handleFirstInteraction() {
+                if (!audioPlayed) {
+                    audio.play().catch(error => {
+                        console.log('自动播放被阻止，需要用户点击');
+                    });
+                    audioPlayed = true;
+                    document.removeEventListener('click', handleFirstInteraction);
+                }
+            }
+
+            // 首次点击页面触发播放
+            document.addEventListener('click', handleFirstInteraction);
+
+            // 自动播放尝试
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('自动播放被阻止:', error);
+                    // 显示隐藏的播放控件
+                    audio.style.display = 'block';
+                });
+            }
+
+            // 错误处理
+            audio.addEventListener('error', function(e) {
+                console.error('音频错误:', {
+                    code: this.error.code,
+                    message: this.error.message
+                });
+                // 显示错误提示
+                const errorBox = document.createElement('div');
+                errorBox.style.color = 'red';
+                errorBox.innerHTML = '音频加载失败，请检查文件路径或格式支持';
+                document.body.appendChild(errorBox);
+            });
+        });
     <script>
         (function () {
             var canvas = $('#canvas');
